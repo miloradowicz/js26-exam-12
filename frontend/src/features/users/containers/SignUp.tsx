@@ -77,7 +77,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await dispatch(
-        signUp({ ...data, avatar: data.avatar !== '' ? data.avatar : null }),
+        signUp({ ...data, avatar: data.avatar !== '' ? data.avatar : '' }),
       ).unwrap();
       navigate('/');
     } catch (e) {

@@ -45,7 +45,7 @@ const FileInput: FC<TextFieldProps & Props> = ({
         input: {
           endAdornment: (
             <Button
-              component='label'
+              component="label"
               role={undefined}
               tabIndex={-1}
               {...buttonProps}
@@ -55,7 +55,13 @@ const FileInput: FC<TextFieldProps & Props> = ({
               }}
             >
               {buttonText}
-              <input hidden type='file' name={name} onChange={handleChange} multiple={multiple} />
+              <input
+                hidden
+                type="file"
+                name={name}
+                onChange={handleChange}
+                multiple={multiple}
+              />
             </Button>
           ),
         },

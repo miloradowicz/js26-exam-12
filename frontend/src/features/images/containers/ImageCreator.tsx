@@ -151,6 +151,7 @@ const ImageCreator = () => {
           </Grid>
           <Grid size={12}>
             <FileInput
+              required
               fullWidth
               label="Image"
               name="image"
