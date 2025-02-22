@@ -65,7 +65,9 @@ export class ImagesController {
 
     const filter = author ? { author: new Types.ObjectId(author) } : {};
 
-    const result = await this.imagesModel.find(filter);
+    const result = await this.imagesModel
+      .find(filter)
+      .populate('author', { username: 0, avatar: 0, role: 0, token: 0 });
 
     return result;
   }

@@ -68,7 +68,7 @@ export class SeederService {
         Array.from({ length: 21 }).map((_, i) => ({
           author: users[this.randomInt(3)],
           title: faker.book.title(),
-          image: `/uploads/fixtures/image-${i + 1}.jpg`,
+          image: `/uploads/fixtures/image-${String(i + 1).padStart(2, '0')}.jpg`,
         })),
       );
       console.log('done');
