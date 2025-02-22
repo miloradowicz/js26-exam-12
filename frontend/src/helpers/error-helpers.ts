@@ -41,3 +41,9 @@ export const isGenericError = (obj: unknown): obj is GenericError =>
   typeof obj.type === 'string' &&
   'error' in obj &&
   typeof obj.error === 'string';
+
+export const hasMessage = (obj: unknown): obj is { message: string } =>
+  !!obj &&
+  typeof obj === 'object' &&
+  'message' in obj &&
+  typeof obj.message === 'string';
