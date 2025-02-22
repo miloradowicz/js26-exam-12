@@ -63,7 +63,7 @@ export class ImagesController {
       throw new ParameterValidationError('ObjectId', author, 'author');
     }
 
-    const filter = [author ? { author: new Types.ObjectId(author) } : {}];
+    const filter = author ? { author: new Types.ObjectId(author) } : {};
 
     const result = await this.imagesModel.find(filter);
 
@@ -91,7 +91,7 @@ export class ImagesController {
     }
 
     if (user.role === 'admin' || user.role === result.author.role) {
-      result.deleteOne();
+      await result.deleteOne();
     } else {
       throw new ForbiddenException();
     }

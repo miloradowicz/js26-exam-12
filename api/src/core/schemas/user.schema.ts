@@ -32,7 +32,7 @@ export class User extends Document<Types.ObjectId> {
   role: string;
 
   @Prop({ type: String, defualt: null })
-  googleId: string;
+  googleId: string | null;
 
   @Prop({ type: String, default: null })
   token: string | null;
@@ -75,6 +75,7 @@ UserSchema.pre('save', async function () {
 UserSchema.set('toJSON', {
   transform: (_doc, ret) => {
     delete ret.password;
+    delete ret.googleId;
     return ret;
   },
 });
