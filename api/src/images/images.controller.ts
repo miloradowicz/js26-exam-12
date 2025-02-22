@@ -97,8 +97,10 @@ export class ImagesController {
 
   @Auth('user', 'admin')
   @Delete(':id')
-  async togglePublish(@Param('id') id: string, @Principal() user: User) {
-    const result = await this.imagesModel.findById(id);
+  async delete(@Param('id') id: string, @Principal() user: User) {
+    const result = await this.imagesModel
+      .findById(id)
+      .populate('author', { username: 0, avatar: 0, token: 0 });
 
     if (!result) {
       throw new NotFoundException();

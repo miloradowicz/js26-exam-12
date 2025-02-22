@@ -39,26 +39,26 @@ export class SeederService {
           username: 'admin',
           password: '1111',
           displayName: 'John Doe',
-          avatarUrl: faker.image.personPortrait({ sex: 'male' }),
+          avatar: faker.image.personPortrait({ sex: 'male' }),
           role: 'admin',
         },
         {
           username: 'fantastic',
           password: '2222',
           displayName: 'Jane Doe',
-          avatarUrl: faker.image.personPortrait({ sex: 'female' }),
+          avatar: faker.image.personPortrait({ sex: 'female' }),
         },
         {
           username: 'doting',
           password: '3333',
           displayName: 'Taylor Hebert',
-          avatarUrl: faker.image.personPortrait({ sex: 'female' }),
+          avatar: faker.image.personPortrait({ sex: 'female' }),
         },
         {
           username: 'amused',
           password: '4444',
           displayName: 'Dorian Gray',
-          avatarUrl: faker.image.personPortrait({ sex: 'male' }),
+          avatar: faker.image.personPortrait({ sex: 'male' }),
         },
       );
       console.log('done');

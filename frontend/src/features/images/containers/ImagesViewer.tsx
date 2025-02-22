@@ -1,11 +1,11 @@
 import { isAxiosError } from 'axios';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
-import { Box, Grid2 as Grid, Typography } from '@mui/material';
+import { Box, Button, Grid2 as Grid, Stack, Typography } from '@mui/material';
 
 import { ImageSet, PopulatedImage } from '../../../types';
 import { api } from '../../../api';
-import { clear } from '../../users/usersSlice';
+import { clear, selectUser } from '../../users/usersSlice';
 import Loader from '../../../components/UI/Loader/Loader';
 import ImageListItem from '../components/ImageListItem';
 import { useDispatch } from 'react-redux';
@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { imagesEndpoint, signInRoute } from '../../../constants';
 import { hasMessage } from '../../../helpers/error-helpers';
 import ImagePopup from '../components/ImagePopup';
+import { useAppSelector } from '../../../app/hooks';
 
 interface Props {
   authorId?: string;
@@ -22,6 +23,7 @@ const ImagesViewer: FC<Props> = ({ authorId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+  const user = useAppSelector(selectUser);
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ImageSet>();
@@ -108,27 +110,44 @@ const ImagesViewer: FC<Props> = ({ authorId }) => {
         onClose={handleClose}
       />
       <Box maxWidth="md" mx="auto">
-        <Typography component="h1" variant="h4" gutterBottom>
-          {data?.title ? `${data.title}'s images` : 'Images'}
-        </Typography>
-        <Grid container spacing={1} py={2} justifyContent={{ sx: 'center' }}>
-          {data?.images.length ? (
-            data.images.map((x) => (
-              <Grid key={x._id} size={{ xs: 12, sm: 6, md: 4 }}>
-                <ImageListItem
-                  id={x._id}
-                  author={x.author}
-                  title={x.title}
-                  image={x.image}
-                  onClick={() => handleClick(x)}
-                  onDelete={() => handleDelete(x._id)}
-                />
-              </Grid>
-            ))
-          ) : (
-            <Typography fontStyle="italic">Nothing here yet.</Typography>
-          )}
-        </Grid>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography component="h1" variant="h4" gutterBottom>
+            {user && (user._id === authorId || (!authorId && user._id === id))
+              ? 'My images'
+              : data?.title
+                ? `${data.title}'s images`
+                : 'Images'}
+          </Typography>
+          {user &&
+            (user._id === authorId || (!authorId && user._id === id)) && (
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/images/new')}
+              >
+                Add new image
+              </Button>
+            )}
+        </Stack>
+        {!loading && (
+          <Grid container spacing={1} py={2} justifyContent={{ sx: 'center' }}>
+            {data?.images.length ? (
+              data.images.map((x) => (
+                <Grid key={x._id} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <ImageListItem
+                    id={x._id}
+                    author={x.author}
+                    title={x.title}
+                    image={x.image}
+                    onClick={() => handleClick(x)}
+                    onDelete={() => handleDelete(x._id)}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <Typography fontStyle="italic">Nothing here yet.</Typography>
+            )}
+          </Grid>
+        )}
       </Box>
     </>
   );

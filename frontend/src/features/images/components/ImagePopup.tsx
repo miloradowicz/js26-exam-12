@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -41,6 +42,7 @@ const ImagePopup: FC<Props> = ({ item, open, onDelete, onClose }) => {
       setDeleting(true);
 
       await onDelete();
+      onClose();
     } finally {
       setDeleting(false);
     }
@@ -49,60 +51,72 @@ const ImagePopup: FC<Props> = ({ item, open, onDelete, onClose }) => {
   return (
     item && (
       <Dialog
-        fullScreen
+        fullWidth
+        maxWidth="xl"
         sx={(theme) => ({
           color: '#fff',
           zIndex: theme.zIndex.drawer + 1,
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
         })}
         open={open}
         onClose={onClose}
       >
-        <DialogContent>
-          <Paper
-            component="img"
-            src={
-              item.image
-                ? new URL(item.image, new URL('images/', baseURL)).href
-                : noImg
-            }
-            alt={item.title}
-            sx={{
-              aspectRatio: 1.2,
-              objectFit: item.image ? 'cover' : 'contain',
-              objectPosition: 'center',
-            }}
-          />
-          <Typography gutterBottom variant="h5" component="div">
-            {item.title}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            by{' '}
-            <Typography
-              color="primary"
-              onClick={() =>
-                closeAndNavigate(`/images/by-author/${item.author._id}`)
+        <Box>
+          <DialogContent>
+            <Paper
+              component="img"
+              src={
+                item.image
+                  ? new URL(item.image, new URL('images/', baseURL)).href
+                  : noImg
               }
-              sx={{ cursor: 'pointer' }}
-            >
-              {item.author.displayName}
+              alt={item.title}
+              sx={{
+                aspectRatio: 1.2,
+                objectFit: item.image ? 'cover' : 'contain',
+                objectPosition: 'center',
+              }}
+            />
+            <Typography gutterBottom variant="h5" component="div">
+              {item.title}
             </Typography>
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Stack direction="row" justifyContent="space-around">
-            {user &&
-              (user.role === 'admin' || user._id === item.author._id) && (
-                <Button size="small" onClick={handleDelete} loading={deleting}>
-                  <Delete />
-                </Button>
-              )}
-            <Button size="small" onClick={onClose}>
-              Close
-            </Button>
-          </Stack>
-        </DialogActions>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              by{' '}
+              <Typography
+                color="primary"
+                onClick={() =>
+                  closeAndNavigate(`/images/by-author/${item.author._id}`)
+                }
+                sx={{ cursor: 'pointer' }}
+              >
+                {item.author.displayName}
+              </Typography>
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Stack
+              direction="row"
+              justifyContent="space-around"
+              alignItems="center"
+            >
+              {user &&
+                (user.role === 'admin' || user._id === item.author._id) && (
+                  <Button
+                    size="small"
+                    onClick={handleDelete}
+                    loading={deleting}
+                  >
+                    <Delete />
+                  </Button>
+                )}
+              <Button size="small" onClick={onClose}>
+                Close
+              </Button>
+            </Stack>
+          </DialogActions>
+        </Box>
       </Dialog>
     )
   );

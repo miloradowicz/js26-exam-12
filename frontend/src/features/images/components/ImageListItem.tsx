@@ -51,7 +51,16 @@ const ImageListItem: FC<Props> = ({
   };
 
   return (
-    <Card sx={{ maxWidth: 360, mx: 'auto', height: '100%' }} elevation={5}>
+    <Card
+      sx={{
+        maxWidth: 360,
+        mx: 'auto',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      elevation={5}
+    >
       <CardActionArea onClick={onClick}>
         <CardMedia
           component="img"
@@ -67,7 +76,7 @@ const ImageListItem: FC<Props> = ({
           }}
         />
       </CardActionArea>
-      <CardContent>
+      <CardContent sx={{ mb: 'auto' }}>
         <Typography gutterBottom variant="h5" component="div">
           {title}
         </Typography>
