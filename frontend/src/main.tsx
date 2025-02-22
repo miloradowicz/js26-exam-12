@@ -8,6 +8,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './app/store.ts';
 import { GOOGLE_CLIENT_ID } from './constants.ts';
+import { addAuthorization } from './api.ts';
+
+addAuthorization(store);
 
 createRoot(document.getElementById('root')!).render(
   <>
