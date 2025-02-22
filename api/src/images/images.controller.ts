@@ -28,6 +28,7 @@ import { ParameterValidationError } from 'src/exception-filters/parameter-valida
 export class ImagesController {
   constructor(
     @InjectModel(Image.name) private readonly imagesModel: Model<Image>,
+    @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
   @Auth('user', 'admin')
@@ -46,7 +47,7 @@ export class ImagesController {
   ) {
     const image = await this.imagesModel.create({
       ...imageDto,
-      user,
+      author: user,
       ...(file
         ? {
             image: join('/', 'uploads/images', file.filename),
@@ -58,18 +59,29 @@ export class ImagesController {
   }
 
   @Get()
-  async getAll(@Query('author') author?: string) {
-    if (author && !isValidObjectId(author)) {
-      throw new ParameterValidationError('ObjectId', author, 'author');
+  async getAll(@Query('author') id?: string) {
+    if (id && !isValidObjectId(id)) {
+      throw new ParameterValidationError('ObjectId', id, 'author');
     }
 
-    const filter = author ? { author: new Types.ObjectId(author) } : {};
+    let filter = {};
+    let result = {};
+    if (id) {
+      filter = { author: new Types.ObjectId(id) };
 
-    const result = await this.imagesModel
+      const author = await this.userModel.findById(id);
+      if (author) {
+        result = { title: author.displayName };
+      } else {
+        result = { title: 'Unknown author' };
+      }
+    }
+
+    const images = await this.imagesModel
       .find(filter)
       .populate('author', { username: 0, avatar: 0, role: 0, token: 0 });
 
-    return result;
+    return { ...result, images };
   }
 
   @Get(':id')
