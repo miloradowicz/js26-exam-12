@@ -1,4 +1,4 @@
 import { Request } from 'express';
-import { User } from 'src/core/user/user.schema';
+import { User } from 'src/core/schemas/user.schema';
 
 export type RequestWithPrincipal = Request & { user: User };

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthzService } from './authz/authz.service';
 import { AuthnService } from './authn/authn.service';
-import { UserModule } from './user/user.module';
+import { SchemasModule } from './schemas/schemas.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [UserModule, UsersModule],
+  imports: [SchemasModule, UsersModule],
   providers: [AuthnService, AuthzService],
-  exports: [AuthnService, AuthzService, UserModule, UsersModule],
+  exports: [AuthnService, AuthzService, SchemasModule, UsersModule],
 })
 export class CoreModule {}

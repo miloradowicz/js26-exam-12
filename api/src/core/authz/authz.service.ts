@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RequestWithPrincipal } from '../types';
-import { User } from '../user/user.schema';
+import { User } from '../schemas/user.schema';
 import { ROLES_KEY } from '../constants';
 
 @Injectable()
