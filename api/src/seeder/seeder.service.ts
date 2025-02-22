@@ -66,7 +66,7 @@ export class SeederService {
       process.stdout.write('Adding images...');
       await this.imageModel.create(
         Array.from({ length: 21 }).map((_, i) => ({
-          user: users[this.randomInt(3)],
+          author: users[this.randomInt(3)],
           title: faker.book.title(),
           image: `/uploads/fixtures/image-${i + 1}.jpg`,
         })),

@@ -9,7 +9,7 @@ export class Image extends Document<Types.ObjectId> {
     ref: User.name,
     required: true,
   })
-  user: User;
+  author: User;
 
   @Prop({ type: String, required: true })
   title: string;
