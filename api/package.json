@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "sees": "nest start --config src/seeder/nest-cli.json",
+    "seed": "nest start --config src/seeder/nest-cli.json",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "dev": "nest start --watch",
