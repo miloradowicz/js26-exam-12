@@ -1,35 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Route, Routes } from 'react-router-dom';
+import { Container } from '@mui/material';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useAppSelector } from './app/hooks';
+import { selectError, selectUser } from './features/users/usersSlice';
+import SignIn from './features/users/containers/SignIn';
+import SignUp from './features/users/containers/SignUp';
+import { useSnackbar } from 'notistack';
+import { useEffect } from 'react';
+import { isGenericError } from './helpers/error-helpers';
+import Header from './components/UI/Header/Header';
+import ImagesViewer from './features/images/containers/ImagesViewer';
+import Page404 from './components/Page404/Page404';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import ImageCreator from './features/images/containers/ImageCreator';
+import { signInRoute, signUpRoute } from './constants';
+
+const App = () => {
+  const { closeSnackbar, enqueueSnackbar } = useSnackbar();
+
+  const user = useAppSelector(selectUser);
+  const userError = useAppSelector(selectError);
+
+  useEffect(() => {
+    if (userError) {
+      closeSnackbar();
+    }
+
+    if (isGenericError(userError)) {
+      enqueueSnackbar(userError.error, { variant: 'error' });
+    }
+  }, [closeSnackbar, enqueueSnackbar, userError]);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Header />
+      <Container sx={{ py: 8, px: 2, minWidth: 360 }}>
+        <Routes>
+          <Route path="/" element={<ImagesViewer />} />
+          <Route path="/images" element={<ImagesViewer />} />
+          <Route path="/images/by-author/:id" element={<ImagesViewer />} />
+          <Route
+            path="/images/my-images"
+            element={
+              <ProtectedRoute
+                isAllowed={user?.role === 'user' || user?.role === 'admin'}
+              >
+                <ImagesViewer authorId={user?._id} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/images/new"
+            element={
+              <ProtectedRoute
+                isAllowed={user?.role === 'user' || user?.role === 'admin'}
+              >
+                <ImageCreator />
+              </ProtectedRoute>
+            }
+          />
+          <Route path={signInRoute} element={<SignIn />} />
+          <Route path={signUpRoute} element={<SignUp />} />
+          <Route path="*" element={<Page404 />} />
+        </Routes>
+      </Container>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -1,5 +1,6 @@
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInRoute } from '../../constants';
 
 interface Props extends PropsWithChildren {
   isAllowed: boolean;
@@ -8,9 +9,11 @@ interface Props extends PropsWithChildren {
 const ProtectedRoute: FC<Props> = ({ isAllowed, children }) => {
   const navigate = useNavigate();
 
-  if (!isAllowed) {
-    navigate('/login');
-  }
+  useEffect(() => {
+    if (!isAllowed) {
+      navigate(signInRoute);
+    }
+  });
 
   return children;
 };

@@ -12,28 +12,29 @@ import {
   Typography,
 } from '@mui/material';
 import { AddAPhoto } from '@mui/icons-material';
-
-import { AuthenticationError, GenericError } from '../../../types';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { selectLoading, selectError, clearError } from '../usersSlice';
-import { loginWithGoogle, register } from '../usersThunk';
-import FileInput from '../../../components/UI/FileInput/FileInput';
 import { GoogleLogin } from '@react-oauth/google';
+
+import { signInRoute } from '../../../constants';
 import {
+  hasMessage,
   isAuthenticationError,
   isGenericError,
   isValidationError,
 } from '../../../helpers/error-helpers';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { selectLoading, selectError, clearError } from '../usersSlice';
+import { signInWithGoogle, signUp } from '../usersThunk';
+import FileInput from '../../../components/UI/FileInput/FileInput';
 
 interface FormData {
-  email: string;
+  username: string;
   displayName: string;
   password: string;
   avatar: File | '';
 }
 
 const initialData: FormData = {
-  email: '',
+  username: '',
   displayName: '',
   password: '',
   avatar: '',
@@ -76,7 +77,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await dispatch(
-        register({ ...data, avatar: data.avatar !== '' ? data.avatar : null }),
+        signUp({ ...data, avatar: data.avatar !== '' ? data.avatar : null }),
       ).unwrap();
       navigate('/');
     } catch (e) {
@@ -84,20 +85,13 @@ const SignUp = () => {
         return;
       }
 
-      if (isGenericError(e)) {
-        enqueueSnackbar(e.error, { variant: 'error' });
-      } else if (isAxiosError(e) && e.response?.data.error) {
+      if (isAxiosError(e) && e.response?.data.error) {
         return void enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
           variant: 'error',
         });
-      } else if (e instanceof Error) {
-        return void enqueueSnackbar(e.message, { variant: 'error' });
-      } else if (
-        typeof e === 'object' &&
-        !!e &&
-        'message' in e &&
-        typeof e.message === 'string'
-      ) {
+      } else if (isGenericError(e)) {
+        enqueueSnackbar(e.error, { variant: 'error' });
+      } else if (hasMessage(e)) {
         return void enqueueSnackbar(e.message, { variant: 'error' });
       }
 
@@ -107,21 +101,14 @@ const SignUp = () => {
 
   const handleGoogleLogin = async (credential: string) => {
     try {
-      await dispatch(loginWithGoogle(credential)).unwrap();
+      await dispatch(signInWithGoogle(credential)).unwrap();
       navigate('/');
     } catch (e) {
       if (isAxiosError(e) && e.response?.data.error) {
         return void enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
           variant: 'error',
         });
-      } else if (e instanceof Error) {
-        return void enqueueSnackbar(e.message, { variant: 'error' });
-      } else if (
-        typeof e === 'object' &&
-        !!e &&
-        'message' in e &&
-        typeof e.message === 'string'
-      ) {
+      } else if (hasMessage(e)) {
         return void enqueueSnackbar(e.message, { variant: 'error' });
       }
     }
@@ -146,13 +133,13 @@ const SignUp = () => {
               <TextField
                 required
                 fullWidth
-                label="Email"
-                name="email"
-                autoComplete="email"
-                value={data.email}
+                label="Username"
+                name="username"
+                autoComplete="username"
+                value={data.username}
                 onChange={handleChange}
-                error={!!getFieldError('email')}
-                helperText={getFieldError('email')}
+                error={!!getFieldError('username')}
+                helperText={getFieldError('username')}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -213,7 +200,7 @@ const SignUp = () => {
         </Box>
         <Grid container justifyContent="flex-end">
           <Grid>
-            <Link component={routerLink} variant="body2" to="/login">
+            <Link component={routerLink} variant="body2" to={signInRoute}>
               Already have an account? Sign in
             </Link>
           </Grid>
@@ -223,7 +210,7 @@ const SignUp = () => {
             Or join with a third-party provider
           </Typography>
           <Grid container justifyContent="center">
-            <Grid>
+            <Grid display="flex" justifyContent="center">
               <GoogleLogin
                 onSuccess={(res) => {
                   if (res.credential) void handleGoogleLogin(res.credential);

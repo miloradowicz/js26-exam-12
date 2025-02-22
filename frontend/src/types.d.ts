@@ -5,9 +5,16 @@ export interface Image {
   image: string;
 }
 
+export type PopulatedImage = Omit<Image, 'author'> & { author: StrippedUser };
+
 export type ImageMutation = Omit<Image, '_id' | 'author' | 'image'> & {
-  image: File | null;
+  image: File | '';
 };
+
+export interface ImageSet {
+  title?: string;
+  images: PopulatedImage[];
+}
 
 export interface User {
   _id: string;
@@ -18,11 +25,11 @@ export interface User {
   token: string;
 }
 
-export type StrippedUser = Omit<User, 'role' | 'token'>;
+export type StrippedUser = Omit<User, 'username' | 'avatar' | 'role' | 'token'>;
 
 export type SignUpMutation = Omit<User, '_id' | 'avatar' | 'role' | 'token'> & {
   password: string;
-  avatar: File | null;
+  avatar: File | '';
 };
 
 export type SignInMutation = Omit<

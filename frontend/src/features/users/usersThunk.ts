@@ -2,6 +2,11 @@ import { isAxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import {
+  googleSignInEndpoint,
+  sessionsEndpoint,
+  usersEndpoint,
+} from '../../constants';
+import {
   AuthenticationError,
   Session,
   User,
@@ -9,27 +14,27 @@ import {
   SignUpMutation,
   ValidationError,
 } from '../../types';
-import { api } from '../../api';
 import {
   isAuthenticationError,
   isValidationError,
 } from '../../helpers/error-helpers';
+import { api } from '../../api';
 
-export const register = createAsyncThunk<
+export const signUp = createAsyncThunk<
   User,
   SignUpMutation,
   { rejectValue: ValidationError }
->('users/register', async (mutation, { rejectWithValue }) => {
+>('users/signUp', async (mutation, { rejectWithValue }) => {
   try {
     const body = new FormData();
-    body.append('email', mutation.email);
+    body.append('username', mutation.username);
     body.append('password', mutation.password);
     body.append('displayName', mutation.displayName);
     if (mutation.avatar) {
       body.append('avatar', mutation.avatar);
     }
 
-    const { data } = await api.post<User>('users', body);
+    const { data } = await api.post<User>(usersEndpoint, body);
 
     return data;
   } catch (e) {
@@ -45,13 +50,13 @@ export const register = createAsyncThunk<
   }
 });
 
-export const login = createAsyncThunk<
+export const signIn = createAsyncThunk<
   Session,
   SignInMutation,
   { rejectValue: AuthenticationError }
->('users/login', async (mutation, { rejectWithValue }) => {
+>('users/signIn', async (mutation, { rejectWithValue }) => {
   try {
-    const { data } = await api.post<Session>('users/sessions', mutation);
+    const { data } = await api.post<Session>(sessionsEndpoint, mutation);
 
     return data;
   } catch (e) {
@@ -67,16 +72,18 @@ export const login = createAsyncThunk<
   }
 });
 
-export const logout = createAsyncThunk('users/logout', async () => {
-  const { data } = await api.delete<Session>('users/sessions');
+export const signOut = createAsyncThunk('users/signOut', async () => {
+  const { data } = await api.delete<Session>(sessionsEndpoint);
 
   return data;
 });
 
-export const loginWithGoogle = createAsyncThunk<Session, string>(
-  'users/loginWithGoogle',
+export const signInWithGoogle = createAsyncThunk<Session, string>(
+  'users/signInWithGoogle',
   async (credential) => {
-    const { data } = await api.post<Session>('users/google', { credential });
+    const { data } = await api.post<Session>(googleSignInEndpoint, {
+      credential,
+    });
     return data;
   },
 );

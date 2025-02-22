@@ -11,29 +11,26 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-
-import {
-  AuthenticationError,
-  GenericError,
-  ValidationError,
-} from '../../../types';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { selectError, selectLoading } from '../usersSlice';
-import { login, loginWithGoogle } from '../usersThunk';
 import { GoogleLogin } from '@react-oauth/google';
+
+import { signUpRoute } from '../../../constants';
 import {
+  hasMessage,
   isAuthenticationError,
   isGenericError,
   isValidationError,
 } from '../../../helpers/error-helpers';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { selectError, selectLoading } from '../usersSlice';
+import { signIn, signInWithGoogle } from '../usersThunk';
 
 interface FormData {
-  email: string;
+  username: string;
   password: string;
 }
 
 const initialData: FormData = {
-  email: '',
+  username: '',
   password: '',
 };
 
@@ -62,27 +59,20 @@ const SignIn = () => {
   const handleSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(login(data)).unwrap();
+      await dispatch(signIn(data)).unwrap();
       navigate('/');
     } catch (e) {
       if (isAuthenticationError(e) || isValidationError(error)) {
         return;
       }
 
-      if (isGenericError(e)) {
-        enqueueSnackbar(e.error, { variant: 'error' });
-      } else if (isAxiosError(e) && e.response?.data.error) {
+      if (isAxiosError(e) && e.response?.data.error) {
         return void enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
           variant: 'error',
         });
-      } else if (e instanceof Error) {
-        return void enqueueSnackbar(e.message, { variant: 'error' });
-      } else if (
-        typeof e === 'object' &&
-        !!e &&
-        'message' in e &&
-        typeof e.message === 'string'
-      ) {
+      } else if (isGenericError(e)) {
+        enqueueSnackbar(e.error, { variant: 'error' });
+      } else if (hasMessage(e)) {
         return void enqueueSnackbar(e.message, { variant: 'error' });
       }
 
@@ -92,19 +82,14 @@ const SignIn = () => {
 
   const handleGoogleLogin = async (credential: string) => {
     try {
-      await dispatch(loginWithGoogle(credential)).unwrap();
+      await dispatch(signInWithGoogle(credential)).unwrap();
       navigate('/');
     } catch (e) {
       if (isAxiosError(e) && e.response?.data.error) {
         return void enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
           variant: 'error',
         });
-      } else if (e instanceof Error) {
-        return void enqueueSnackbar(e.message, { variant: 'error' });
-      } else if (
-        ((e): e is { message: string } =>
-          'message' in (e as { message: string }))(e)
-      ) {
+      } else if (hasMessage(e)) {
         return void enqueueSnackbar(e.message, { variant: 'error' });
       }
     }
@@ -129,10 +114,10 @@ const SignIn = () => {
               <TextField
                 required
                 fullWidth
-                label="Email"
-                name="email"
-                autoComplete="email"
-                value={data.email}
+                label="Username"
+                name="username"
+                autoComplete="username"
+                value={data.username}
                 onChange={handleChange}
               />
             </Grid>
@@ -163,7 +148,7 @@ const SignIn = () => {
         </Box>
         <Grid container justifyContent="flex-end">
           <Grid>
-            <Link component={routerLink} variant="body2" to="/register">
+            <Link component={routerLink} variant="body2" to={signUpRoute}>
               Not registered yet? Sign up
             </Link>
           </Grid>

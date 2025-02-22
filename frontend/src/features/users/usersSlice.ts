@@ -6,9 +6,9 @@ import {
   User,
   ValidationError,
 } from '../../types';
-import { RootState } from '../../app/store';
-import { login, register, logout, loginWithGoogle } from './usersThunk';
 import { isValidationError } from '../../helpers/error-helpers';
+import { RootState } from '../../app/store';
+import { signIn, signUp, signOut, signInWithGoogle } from './usersThunk';
 
 interface State {
   user: User | null;
@@ -45,58 +45,58 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (state) => {
+      .addCase(signIn.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, { payload }) => {
+      .addCase(signIn.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.user = payload.user;
       })
-      .addCase(login.rejected, (state, { payload, error }) => {
+      .addCase(signIn.rejected, (state, { payload, error }) => {
         state.loading = false;
         state.error = payload ?? {
           type: 'Unknown error',
           error: error.message ?? 'Unknown error',
         };
       })
-      .addCase(register.pending, (state) => {
+      .addCase(signUp.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state, { payload }) => {
+      .addCase(signUp.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.user = payload;
       })
-      .addCase(register.rejected, (state, { payload, error }) => {
+      .addCase(signUp.rejected, (state, { payload, error }) => {
         state.loading = false;
         state.error = payload ?? {
           type: 'Unknown error',
           error: error.message ?? 'Unknown error',
         };
       })
-      .addCase(logout.pending, (state) => {
+      .addCase(signOut.pending, (state) => {
         state.error = null;
       })
-      .addCase(logout.fulfilled, (state, { payload }) => {
+      .addCase(signOut.fulfilled, (state, { payload }) => {
         state.user = payload.user;
       })
-      .addCase(logout.rejected, (state, { error }) => {
+      .addCase(signOut.rejected, (state, { error }) => {
         state.user = null;
         state.error = {
           type: 'Unknown error',
           error: error.message ?? 'Unknown error',
         };
       })
-      .addCase(loginWithGoogle.pending, (state) => {
+      .addCase(signInWithGoogle.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginWithGoogle.fulfilled, (state, { payload }) => {
+      .addCase(signInWithGoogle.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.user = payload.user;
       })
-      .addCase(loginWithGoogle.rejected, (state, { error }) => {
+      .addCase(signInWithGoogle.rejected, (state, { error }) => {
         state.loading = false;
         state.error = {
           type: 'Unknown error',
