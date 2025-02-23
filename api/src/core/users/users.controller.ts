@@ -22,6 +22,7 @@ import { GoogleAuthService } from './google-auth/google-auth.service';
 import { GoogleCredentialDto } from './google-credential.dto';
 import { nanoid } from 'nanoid';
 import { BodyWithFileInterceptor } from '../common/interceptors/body-with-file.interceptor';
+import { OverrideAuthGuardsStupidSilentRejectUponNoUsernameAndPasswordBodyGuard } from '../override-auth-guards-stupid-silent-reject-upon-no-username-and-password.guard/override-auth-guards-stupid-silent-reject-upon-no-username-and-password.guard';
 
 @Controller('users')
 export class UsersController {
@@ -50,7 +51,10 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(
+    OverrideAuthGuardsStupidSilentRejectUponNoUsernameAndPasswordBodyGuard,
+    AuthGuard('local'),
+  )
   @Post('sessions')
   login(@Principal() principal: User) {
     return { user: principal };
