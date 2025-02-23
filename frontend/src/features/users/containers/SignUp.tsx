@@ -194,6 +194,11 @@ const SignUp = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             loading={loading}
+            disabled={
+              !!(
+                isValidationError(error) && Object.entries(error.errors).length
+              )
+            }
           >
             Sign Up
           </Button>

@@ -21,7 +21,7 @@ import {
   isValidationError,
 } from '../../../helpers/error-helpers';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { selectError, selectLoading } from '../usersSlice';
+import { clearError, selectError, selectLoading } from '../usersSlice';
 import { signIn, signInWithGoogle } from '../usersThunk';
 
 interface FormData {
@@ -53,6 +53,7 @@ const SignIn = () => {
   const handleChange: ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
+    dispatch(clearError());
     setData((data) => ({ ...data, [e.target.name]: e.target.value }));
   };
 
@@ -142,6 +143,7 @@ const SignIn = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             loading={loading}
+            disabled={!!getError()}
           >
             Sign In
           </Button>
@@ -157,8 +159,8 @@ const SignIn = () => {
           <Typography gutterBottom>
             Or login with a third-party provider
           </Typography>
-          <Grid container justifyContent="center" direction="column">
-            <Grid>
+          <Grid container justifyContent="center">
+            <Grid display="flex" justifyContent="center">
               <GoogleLogin
                 onSuccess={(res) => {
                   if (res.credential) void handleGoogleLogin(res.credential);

@@ -10,3 +10,4 @@ export const googleSignInEndpoint = 'users/google';
 
 export const signInRoute = '/sign-in';
 export const signUpRoute = '/sign-up';
+export const notFoundRoute = '/not-found';

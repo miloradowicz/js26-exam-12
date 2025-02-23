@@ -18,9 +18,11 @@ import {
 import { api } from '../../../api';
 import FileInput from '../../../components/UI/FileInput/FileInput';
 import { ImageMutation, ValidationError } from '../../../types';
-import { isValidationError } from '../../../helpers/error-helpers';
-import { imagesEndpoint } from '../../../constants';
+import { hasMessage, isValidationError } from '../../../helpers/error-helpers';
+import { imagesEndpoint, signInRoute } from '../../../constants';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../../app/hooks';
+import { clear } from '../../users/usersSlice';
 
 const initialData: ImageMutation = {
   title: '',
@@ -29,6 +31,7 @@ const initialData: ImageMutation = {
 
 const ImageCreator = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [data, setData] = useState(initialData);
@@ -93,16 +96,19 @@ const ImageCreator = () => {
         setData(initialData);
         navigate('/');
       } catch (e) {
-        if (isAxiosError(e) && e.response?.status === 400) {
-          return void setError(e.response.data);
-        } else if (isAxiosError(e) && e.response?.data.error) {
+        if (isAxiosError(e) && e.response) {
+          if (e.response.status === 401) {
+            dispatch(clear());
+            return void navigate(signInRoute);
+          } else if (e.response.status === 400) {
+            return void setError(e.response.data);
+          }
+
           return void enqueueSnackbar(
             `${e.message}: ${e.response.data.error}`,
-            {
-              variant: 'error',
-            },
+            { variant: 'error' },
           );
-        } else if (e instanceof Error) {
+        } else if (hasMessage(e)) {
           return void enqueueSnackbar(e.message, { variant: 'error' });
         }
 

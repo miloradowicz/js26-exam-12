@@ -10,7 +10,7 @@ import Loader from '../../../components/UI/Loader/Loader';
 import ImageListItem from '../components/ImageListItem';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { imagesEndpoint, signInRoute } from '../../../constants';
+import { imagesEndpoint, notFoundRoute, signInRoute } from '../../../constants';
 import { hasMessage } from '../../../helpers/error-helpers';
 import ImagePopup from '../components/ImagePopup';
 import { useAppSelector } from '../../../app/hooks';
@@ -51,7 +51,7 @@ const ImagesViewer: FC<Props> = ({ authorId }) => {
           dispatch(clear());
           return void navigate(signInRoute);
         } else if (e.response.status === 404) {
-          return void setData(undefined);
+          return void navigate(notFoundRoute);
         }
 
         enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
@@ -61,7 +61,7 @@ const ImagesViewer: FC<Props> = ({ authorId }) => {
         enqueueSnackbar(e.message, { variant: 'error' });
       }
 
-      navigate('/');
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -81,12 +81,17 @@ const ImagesViewer: FC<Props> = ({ authorId }) => {
       await api.delete(`${imagesEndpoint}/${id}`);
       load();
     } catch (e) {
-      if (isAxiosError(e) && e.response?.data.error) {
-        return void enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
+      if (isAxiosError(e) && e.response) {
+        if (e.response.status === 401) {
+          dispatch(clear());
+          return void navigate(signInRoute);
+        }
+
+        enqueueSnackbar(`${e.message}: ${e.response.data.error}`, {
           variant: 'error',
         });
-      } else if (e instanceof Error) {
-        return void enqueueSnackbar(e.message, { variant: 'error' });
+      } else if (hasMessage(e)) {
+        enqueueSnackbar(e.message, { variant: 'error' });
       }
 
       console.error(e);
