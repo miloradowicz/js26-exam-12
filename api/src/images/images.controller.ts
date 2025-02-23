@@ -10,6 +10,9 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
+  UsePipes,
+  ValidationError,
+  ValidationPipe,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -23,6 +26,7 @@ import { CreateImageDto } from './create-image.dto';
 import { Principal } from 'src/core/common/principal/principal.param-decorator';
 import { User } from 'src/core/schemas/user.schema';
 import { ParameterValidationError } from 'src/exception-filters/parameter-validation-error.filter';
+import { BodyWithFileInterceptor } from 'src/core/common/interceptors/body-with-file.interceptor';
 
 @Controller('images')
 export class ImagesController {
@@ -39,20 +43,13 @@ export class ImagesController {
         join(config.rootPath, config.publicPath, 'uploads/images'),
       ),
     }),
+    new BodyWithFileInterceptor('image'),
   )
-  async create(
-    @Body() imageDto: CreateImageDto,
-    @UploadedFile() file: Express.Multer.File,
-    @Principal() user: User,
-  ) {
+  async create(@Body() imageDto: CreateImageDto, @Principal() user: User) {
     const image = await this.imagesModel.create({
       ...imageDto,
       author: user,
-      ...(file
-        ? {
-            image: join('/', 'uploads/images', file.filename),
-          }
-        : {}),
+      image: join('/', 'uploads/images', imageDto.image.filename),
     });
 
     return image.depopulate();

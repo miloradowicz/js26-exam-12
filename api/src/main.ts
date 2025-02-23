@@ -25,6 +25,7 @@ async function bootstrap() {
       exceptionFactory: (validationErrors: ValidationError[]) => {
         throw new DtoValidationError(validationErrors);
       },
+      transform: true,
     }),
   );
   app.useGlobalFilters(

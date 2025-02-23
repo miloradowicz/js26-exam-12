@@ -4,7 +4,6 @@ import {
   Delete,
   Post,
   UnauthorizedException,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,6 +21,7 @@ import { Principal } from '../common/principal/principal.param-decorator';
 import { GoogleAuthService } from './google-auth/google-auth.service';
 import { GoogleCredentialDto } from './google-credential.dto';
 import { nanoid } from 'nanoid';
+import { BodyWithFileInterceptor } from '../common/interceptors/body-with-file.interceptor';
 
 @Controller('users')
 export class UsersController {
@@ -37,18 +37,12 @@ export class UsersController {
         join(config.rootPath, config.publicPath, 'uploads/avatars'),
       ),
     }),
+    new BodyWithFileInterceptor('avatar'),
   )
-  async register(
-    @Body() userDto: CreateUserDto,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  async register(@Body() userDto: CreateUserDto) {
     const user = new this.userModel({
       ...userDto,
-      ...(file
-        ? {
-            avatar: join('/', 'uploads/avatars', file.filename),
-          }
-        : {}),
+      avatar: join('/', 'uploads/avatars', userDto.avatar.filename),
     });
     user.generateToken();
     await user.save();
